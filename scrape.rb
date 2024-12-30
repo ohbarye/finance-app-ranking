@@ -21,6 +21,15 @@ def scrape_ios_ranking
     }
   end.sort_by { |item| item[:rank] }
 
+  prev_items = JSON.parse(File.read('ios_ranking.json'), symbolize_names: true)
+  app_id = 'id1487752024'
+  prev_rank = prev_items.find { |item| item[:url].include?(app_id) }&.fetch(:rank) || "out of ranking"
+  new_rank = items.find { |item| item[:url].include?(app_id) }&.fetch(:rank) || "out of ranking"
+
+  # This diff will be passed to the next step of GitHub Actions as $GITHUB_OUTPUT
+  emoji = new_rank < prev_rank ? '🔼' : new_rank > prev_rank ? '🔽' : '🔵'
+  puts "ios_diff='iOS: #{prev_rank} -> #{new_rank} #{emoji}'"
+
   File.write('ios_ranking.json', JSON.pretty_generate(items))
 end
 

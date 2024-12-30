@@ -20,13 +20,14 @@ jobs:
       with:
         bundler-cache: true
     - name: Fetch latest data
+      id: fetch
       run: |-
-        bundle exec ruby scrape.rb
+        bundle exec ruby scrape.rb >> $GITHUB_OUTPUT
     - name: Commit and push if it changed
       run: |-
         git config user.name "Automated"
         git config user.email "actions@users.noreply.github.com"
         git add -A
         timestamp=$(date -u)
-        git commit -m "Latest data: ${timestamp}" || exit 0
+        git commit -m "Store ranking updated. ${{ steps.fetch.outputs.ios_diff }}" || exit 0
         git push
